@@ -6,7 +6,10 @@ import hashlib
 
 from register_module import UserRegister
 
+
 class UserLogin(QWidget):
+    closeApp = pyqtSignal()
+
     def __init__(self):
         """Конструктор класса UserLogin, иницииализация элементов и переменных"""
         super().__init__()
@@ -50,7 +53,8 @@ class UserLogin(QWidget):
 
         self.login_flag = False
         self.filename = "authorised_data.json"
-        self.authorised_data = self.load_authorised_data()
+        self.authorised_data = {}
+        self.load_authorised_data()
         self.register_window = UserRegister()
         self._connects()
 
@@ -59,6 +63,7 @@ class UserLogin(QWidget):
         self.login_btn.clicked.connect(self.login_slot)
         self.register_window.workDone.connect(self.show)
         self.reg_btn.clicked.connect(self.reg_btn_slot)
+        self.exit_btn.clicked.connect(self.exit_btn_slot)
 
     def check_login_data(self, user_str, password_str):
         """Check username and password in LineEdit"""
@@ -71,18 +76,32 @@ class UserLogin(QWidget):
             return False
 
     def load_authorised_data(self):
-        with open(self.filename, 'r') as file_object:
-            return json.load(file_object)
+        try:
+            with open(self.filename, 'r') as file_object:
+               self.authorised_data = json.load(file_object)
+        except(FileExistsError, FileNotFoundError):
+            with open(self.filename, 'w') as f_obj:
+                json.dump({'user': '1234'}, f_obj)
+            with open(self.filename, 'r') as file_object:
+                self.authorised_data = json.load(file_object)
 
     @pyqtSlot()
     def login_slot(self):
         self.login_flag = self.check_login_data(self.user_edit.text(), self.password_edit.text())
-        print (self.login_flag)
+        print(self.login_flag)
+        if self.login_flag:
+            self.workDone.emit()
 
     @pyqtSlot()
     def reg_btn_slot(self):
         self.hide()
         self.register_window.show()
+
+    @pyqtSlot
+    def exit_btn_slot(self):
+        """Action for button "Cancel" """
+        self.closeApp.emit()
+
 
 def main():
     app = QApplication(sys.argv)

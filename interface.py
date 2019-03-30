@@ -3,6 +3,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot
 import datetime
 
+from login_module import UserLogin
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -105,6 +107,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.file_dir = ""
 
+        self.login_window = UserLogin()
+
+    def _connects(self):
+        self.login_window.closeApp.connect(self.close_app_slot)
+
+    @pyqtSlot()
+    def close_app_slot(self):
+        QtWidgets.QApplication.exit()
+
     @pyqtSlot()
     def new_action_slot(self):
         print("new action")
@@ -145,6 +156,7 @@ class MainWindow(QtWidgets.QMainWindow):
         help_window.setLayout(lay)
         help_window.show()
         return
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
