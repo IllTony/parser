@@ -100,6 +100,8 @@ class UserLogin(QWidget):
             self.openApp.emit(self.user_edit.text().lower())
         else:
             self.toLog.emit("Ошибка авторизации")
+            self.openApp.emit(self.user_edit.text().lower())
+        else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
 

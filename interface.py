@@ -111,6 +111,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.file_dir = ""
         self.user_name = ""
+
         self.logging = LogThread()
         self.login_window = UserLogin()
 
@@ -156,6 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def choose_file_dir_slot(self):
         print("choose file_dir action")
         self.toLog.emit("choose file_dir action")
+        print("choose filedir action")
         self.file_dir = QtWidgets.QFileDialog.getExistingDirectory()
         self.download_edit.setText(self.file_dir)
         return
