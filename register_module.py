@@ -5,7 +5,7 @@ import hashlib
 
 
 class UserRegister(QWidget):
-    workDone = pyqtSignal()
+    registerDone = pyqtSignal()
 
     def __init__(self):
         """Конструктор класса UserRegister, иницииализация элементов и переменных"""
@@ -59,7 +59,6 @@ class UserRegister(QWidget):
         self.filename = "authorised_data.json"
         self.authorised_data = self.load_authorised_data()
 
-
     def _connects(self):
         """Describe all connects for signal and slots for UserLogin class"""
         self.create_btn.clicked.connect(self.create_user_slot)
@@ -74,7 +73,7 @@ class UserRegister(QWidget):
             password_str = self.password_edit.text()
             self.authorised_data[user_str.lower()] = hashlib.sha1(password_str.encode('utf-8')).hexdigest()
             self.write_authorised_data()
-            self.workDone.emit()
+            self.registerDone.emit()
             self.close()
         else:
             msg = QMessageBox()
@@ -90,7 +89,7 @@ class UserRegister(QWidget):
 
     def cancel_btn_slot(self):
         """Action for button "Cancel" """
-        self.workDone.emit()
+        self.registerDone.emit()
         self.close()
 
     def check_register_data(self):

@@ -24,19 +24,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.exit_action.setShortcut("Ctrl+Q")
         self.exit_action.triggered.connect(self.exit_slot)
 
-        self.choose_filedir_action = QtWidgets.QAction("Выбрать директорию")
-        self.choose_filedir_action.setStatusTip("Выбрать директорию с ФГОС")
-        self.choose_filedir_action.triggered.connect(self.choose_filedir_slot)
+        self.choose_file_dir_action = QtWidgets.QAction("Выбрать директорию")
+        self.choose_file_dir_action.setStatusTip("Выбрать директорию с ФГОС")
+        self.choose_file_dir_action.triggered.connect(self.choose_file_dir_slot)
 
         # Action for help menu
-        self.userguide_action = QtWidgets.QAction("Р&уководство пользователя")
-        self.userguide_action.setStatusTip("Открыть руководство пользователя")
-        self.userguide_action.setShortcut("F1")
-        self.userguide_action.triggered.connect(self.userguide_slot)
+        self.user_guide_action = QtWidgets.QAction("Р&уководство пользователя")
+        self.user_guide_action.setStatusTip("Открыть руководство пользователя")
+        self.user_guide_action.setShortcut("F1")
+        self.user_guide_action.triggered.connect(self.user_guide_slot)
 
-        self.about_programm_action = QtWidgets.QAction("О& программе")
-        self.about_programm_action.setStatusTip("Справка о программе")
-        self.about_programm_action.triggered.connect(self.about_programm_slot)
+        self.about_program_action = QtWidgets.QAction("О& программе")
+        self.about_program_action.setStatusTip("Справка о программе")
+        self.about_program_action.triggered.connect(self.about_program_slot)
 
         # Меню программы
         # Section menu - File
@@ -44,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.file_menu = self.menuBar().addMenu("Файл")
         self.file_menu.addAction(self.new_action)
         self.file_menu.addSeparator()
-        self.file_menu.addAction(self.choose_filedir_action)
+        self.file_menu.addAction(self.choose_file_dir_action)
         self.file_menu.addSeparator()
         self.file_menu.addAction(self.exit_action)
 
@@ -55,9 +55,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Section menu - Help
         self.help_menu = QtWidgets.QMenu()
         self.help_menu = self.menuBar().addMenu("Справка")
-        self.help_menu.addAction(self.userguide_action)
+        self.help_menu.addAction(self.user_guide_action)
         self.file_menu.addSeparator()
-        self.help_menu.addAction(self.about_programm_action)
+        self.help_menu.addAction(self.about_program_action)
 
         # Interface for central window
 
@@ -72,7 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.download_btn = QtWidgets.QPushButton("...")
         self.download_btn.setFixedSize(30, 20)
-        self.download_btn.clicked.connect(self.choose_filedir_slot)
+        self.download_btn.clicked.connect(self.choose_file_dir_slot)
 
         self.download_lay.addWidget(self.download_label)
         self.download_lay.addWidget(self.download_edit)
@@ -106,11 +106,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.v_lay.setAlignment(Qt.AlignCenter)
 
         self.file_dir = ""
-
+        self.user_name = ""
         self.login_window = UserLogin()
+
+        self._connects()
 
     def _connects(self):
         self.login_window.closeApp.connect(self.close_app_slot)
+        self.login_window.openApp.connect(self.open_app_slot)
+
+    def start_login(self):
+        self.login_window.setWindowTitle("Авторизация пользователя")
+        self.login_window.resize(310, 200)
+        self.login_window.show()
+
+    def load_user_settings(self, user_name):
+        self.user_name = user_name
+
+    @pyqtSlot(str)
+    def open_app_slot(self, user_name):
+        self.load_user_settings(user_name)
+        self.login_window.close()
+        self.setWindowTitle("Обработчик ФГОС")
+        self.resize(400, 300)
+        self.show()
+
 
     @pyqtSlot()
     def close_app_slot(self):
@@ -126,27 +146,27 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QApplication.quit()
 
     @pyqtSlot()
-    def choose_filedir_slot(self):
+    def choose_file_dir_slot(self):
         print("choose filedir action")
         self.file_dir = QtWidgets.QFileDialog.getExistingDirectory()
         self.download_edit.setText(self.file_dir)
         return
 
     @pyqtSlot()
-    def userguide_slot(self):
-        print("userguide action")
+    def user_guide_slot(self):
+        print("user_guide action")
         return
 
     @pyqtSlot()
-    def about_programm_slot(self):
-        print("about programm action")
+    def about_program_slot(self):
+        print("about program action")
         global help_window
         help_window = QtWidgets.QWidget()
         help_window.setWindowTitle("О программе")
         help_window.setWindowModality(Qt.ApplicationModal)
         help_window.setAttribute(Qt.WA_DeleteOnClose, True)
         help_window.setFixedSize(400, 100)
-        info_label = QtWidgets.QLabel("Programm was developed by Schetinin G. A. and Illarionov A.A. \n"
+        info_label = QtWidgets.QLabel("Program was developed by Schetinin G. A. and Illarionov A.A. \n"
                                       "04.2019 \n"
                                       "All rights reserved!")
         info_label.setFixedSize(390, 80)
@@ -161,9 +181,7 @@ class MainWindow(QtWidgets.QMainWindow):
 def main():
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
-    window.setWindowTitle("Обработчик ФГОС")
-    window.resize(400, 300)
-    window.show()
+    window.start_login()
     sys.exit(app.exec_())
 
 
