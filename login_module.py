@@ -1,6 +1,5 @@
-import sys
 import json
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit, QDialog, QGridLayout, QVBoxLayout, QApplication
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit, QMessageBox, QGridLayout, QVBoxLayout, QApplication
 from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot
 import hashlib
 
@@ -9,6 +8,8 @@ from register_module import UserRegister
 
 class UserLogin(QWidget):
     closeApp = pyqtSignal()
+    openApp = pyqtSignal(str)
+    toLog = pyqtSignal(str)
 
     def __init__(self):
         """Конструктор класса UserLogin, иницииализация элементов и переменных"""
@@ -61,7 +62,7 @@ class UserLogin(QWidget):
     def _connects(self):
         """Describe all connects for signal and slots for UserLogin class"""
         self.login_btn.clicked.connect(self.login_slot)
-        self.register_window.workDone.connect(self.show)
+        self.register_window.registerDone.connect(self.register_done_slot)
         self.reg_btn.clicked.connect(self.reg_btn_slot)
         self.exit_btn.clicked.connect(self.exit_btn_slot)
 
@@ -86,31 +87,36 @@ class UserLogin(QWidget):
                 self.authorised_data = json.load(file_object)
 
     @pyqtSlot()
+    def register_done_slot(self):
+        self.load_authorised_data()
+        self.show()
+
+    @pyqtSlot()
     def login_slot(self):
         self.login_flag = self.check_login_data(self.user_edit.text(), self.password_edit.text())
         print(self.login_flag)
         if self.login_flag:
-            self.workDone.emit()
+            self.toLog.emit("Авторизация выполнены")
+            self.openApp.emit(self.user_edit.text().lower())
+        else:
+            self.toLog.emit("Ошибка авторизации")
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+
+            msg.setFixedSize(200, 100)
+            msg.setWindowTitle("Ошибка авторизации")
+            msg.setText("Проверьте введенные данные:")
+            msg.setInformativeText("Проверьте имя пользователя и пароль.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
 
     @pyqtSlot()
     def reg_btn_slot(self):
         self.hide()
         self.register_window.show()
 
-    @pyqtSlot
+    @pyqtSlot()
     def exit_btn_slot(self):
         """Action for button "Cancel" """
         self.closeApp.emit()
 
-
-def main():
-    app = QApplication(sys.argv)
-    window = UserLogin()
-    window.setWindowTitle("Авторизация пользователя")
-    window.resize(310, 200)
-    window.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
